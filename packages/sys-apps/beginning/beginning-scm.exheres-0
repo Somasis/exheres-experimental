@@ -1,0 +1,32 @@
+# Copyright 2015 Kylie McClain <somasis@exherbo.org>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user='somasis' tag="v${PV}" ]
+
+SUMMARY=" A minimal rc program that doesn't try to be too clever"
+SLOT="0"
+LICENCES="ISC"
+
+MYOPTIONS=""
+
+PLATFORMS="~amd64 ~armv7"
+
+DEPENDENCIES="
+    run:
+        sys-apps/busybox
+    recommendation:
+        sys-apps/sinit[beginning]
+"
+
+BUGS_TO="somasis@exherbo.org"
+
+DEFAULT_SRC_INSTALL_PARAMS=(
+    PREFIX=/usr/$(exhost --target)
+    DOCDIR=/usr/share/doc/${PNVR}
+    SYSCONFDIR=/etc
+)
+
+src_install() {
+    default
+}
+
