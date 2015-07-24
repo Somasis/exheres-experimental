@@ -3,7 +3,7 @@
 
 require github [ user='somasis' tag="v${PV}" ]
 
-SUMMARY=" A minimal rc program that doesn't try to be too clever"
+SUMMARY="A minimal rc program that doesn't try to be too clever"
 SLOT="0"
 LICENCES="ISC"
 
