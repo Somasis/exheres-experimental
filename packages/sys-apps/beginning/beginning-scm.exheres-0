@@ -1,9 +1,10 @@
 # Copyright 2015 Kylie McClain <somasis@exherbo.org>
 # Distributed under the terms of the GNU General Public License v2
 
+require alternatives
 require github [ user='somasis' tag="v${PV}" ]
 
-SUMMARY="A minimal rc program that doesn't try to be too clever"
+SUMMARY="An init system that doesn't try to be too clever"
 SLOT="0"
 LICENCES="ISC"
 
@@ -14,8 +15,6 @@ PLATFORMS="~amd64 ~armv7"
 DEPENDENCIES="
     run:
         sys-apps/busybox
-    recommendation:
-        sys-apps/sinit[beginning]
 "
 
 BUGS_TO="somasis@exherbo.org"
@@ -28,5 +27,8 @@ DEFAULT_SRC_INSTALL_PARAMS=(
 
 src_install() {
     default
+    alternatives_for    init ${PN} 50 \
+                        /usr/$(exhost --target)/bin/init begin
+
 }
 
