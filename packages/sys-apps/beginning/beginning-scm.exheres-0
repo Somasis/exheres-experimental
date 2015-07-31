@@ -28,9 +28,11 @@ DEFAULT_SRC_INSTALL_PARAMS=(
 src_install() {
     default
     alternatives_for    init ${PN} 50 \
-                        /usr/$(exhost --target)/bin/init        begin   \
-                        /usr/$(exhost --target)/bin/reboot      reboot  \
-                        /usr/$(exhost --target)/bin/poweroff    poweroff
+                        /usr/$(exhost --target)/bin/init        begin               \
+                        /usr/$(exhost --target)/bin/reboot      beginning.reboot    \
+                        /usr/$(exhost --target)/bin/poweroff    beginning.poweroff  \
+                        /usr/$(exhost --target)/bin/shutdown    beginning.shutdown  \
+                        /usr/$(exhost --target)/bin/halt        beginning.halt
 
 }
 
