@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 require alternatives
-require gogs [ prefix='https://git.somasis.com' user='somasis' tag="v${PV}" ]
+require github [ user='somasis' tag="v${PV}" ]
 
 SUMMARY="An init system that doesn't try to be too clever"
 SLOT="0"
