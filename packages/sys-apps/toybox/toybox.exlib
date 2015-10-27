@@ -1,0 +1,159 @@
+# Copyright 2015 Kylie McClain <somasis@exherbo.org>
+# Distributed under the terms of the GNU General Public License v2
+
+require github [ user='landley' tag="${PV}" ]
+require alternatives
+
+SUMMARY="A simple, BSD-licensed project which aims to provide all the
+tools needed to turn an embedded system into a development environment."
+DESCRIPTION="Toybox is a BSD-licensed system base which combines many of
+the common command line utilities expected in a Linux system into a single
+executable. It can be used as an alternative to Busybox or GNU coreutils."
+
+SLOT="0"
+
+# NOTE(somasis)
+#   asked Rob Landley in IRC, he says that it is essentially public domain,
+#   but the license is derived from BSD. was told to use either.
+LICENCES="|| ( BSD-2 public-domain )"
+
+MYOPTIONS="
+    static
+"
+
+DEPENDENCIES="
+    run:
+        dev-lang/perl:* [[ description = [ Needed for sha*sum programs ] ]]
+"
+
+# seems to act really strange with sydbox
+RESTRICT=test
+
+MAKE_PARAMS=(
+    CPUS=${EXJOBS}
+    HOSTCC=$(exhost --tool-prefix)cc
+    AR=$(exhost --tool-prefix)ar
+    AS=$(exhost --tool-prefix)ar
+    CC=$(exhost --tool-prefix)cc
+    CXX=$(exhost --tool-prefix)c++
+    LD=$(exhost --tool-prefix)ld
+    NM=$(exhost --tool-prefix)nm
+    RANLIB=$(exhost --tool-prefix)ranlib
+    V=2
+)
+
+DEFAULT_SRC_PREPARE_PATCHES=(
+    "${FILES}"/10a942f7a67fe7f8dc6c17c3115449f5034fb607.patch
+    "${FILES}"/87f6a93fc594934b21fcd0e9d42baad2abb209ae.patch
+)
+
+# TODO/NOTE(somasis):
+#
+# coreutils
+# not yet provided: csplit, fmt, hostid (coming in next ver), join, numfmt,
+#                   pathchk, pinky, pr, ptx, shuf, stdbuf, stty, sum, tsort,
+#                   unexpand
+#
+# the rest... the rest are probably not used very much. shuf is the only one
+# that I can think of using often; I've never even heard of ones like tsort.
+
+src_prepare() {
+    default
+    edo cp -v "${FILES}"/config "${WORK}"/.config
+}
+
+src_configure() {
+    yes '' | emake "${MAKE_PARAMS[@]}" oldconfig
+}
+
+src_compile() {
+    emake "${MAKE_PARAMS[@]}"
+    if option static;then
+        mv "${PN}" "${PN}".dyn
+        CFLAGS="${CFLAGS} -static" emake "${MAKE_PARAMS[@]}"
+        mv "${PN}" "${PN}".static
+        mv "${PN}".dyn "${PN}"
+    fi
+}
+
+src_test() {
+    esandbox allow_path /proc/self/exe
+    emake "${MAKE_PARAMS[@]}" test
+    esandbox disallow_path /proc/self/exe
+}
+
+src_install() {
+    herebin "${PN}".'[' <<'EOF'
+#!/bin/sh
+exec test "$@"
+EOF
+    herebin "${PN}".sha224sum <<'EOF'
+#!/bin/sh
+exec shasum -a 224 "$@"
+EOF
+    herebin "${PN}".sha256sum <<'EOF'
+#!/bin/sh
+exec shasum -a 256 "$@"
+EOF
+    herebin "${PN}".sha384sum <<'EOF'
+#!/bin/sh
+exec shasum -a 384 "$@"
+EOF
+    herebin "${PN}".sha512sum <<'EOF'
+#!/bin/sh
+exec shasum -a 512 "$@"
+EOF
+    herebin "${PN}".users <<'EOF'
+#!/bin/sh
+exec who | cut -d$'\t' -f1
+EOF
+    herebin "${PN}".uncompress << 'EOF'
+#!/bin/sh
+exec decompress "$@"
+EOF
+
+    option static && dobin "${PN}".static
+    dobin "${PN}"
+    edo chmod 2755 "${IMAGE}"/usr/$(exhost --target)/bin/${PN}
+
+    local coreutils=(
+        base64 basename cat chgrp chmod chown chroot cksum comm cp cut date
+        dd df dirname du echo env expand expr factor false fold head hostid
+        id install kill link ln logname ls md5sum mkdir mkfifo mknod mktemp
+        mv nice nl nohup nproc od paste printenv printf pwd readlink realpath
+        rm rmdir sed seq sha1sum shred sleep sort split stat sync tac tail
+        tee test time timeout touch tr true truncate tty uname uniq unlink
+        wc who whoami yes
+    )
+
+    alternatives_for coreutils  ${PN} 100   \
+        /usr/$(exhost --target)/bin/'['         /usr/$(exhost --target)/bin/${PN}.'['       \
+        /usr/$(exhost --target)/bin/arch        /usr/$(exhost --target)/bin/${PN}.arch      \
+        /usr/$(exhost --target)/bin/sha224sum   /usr/$(exhost --target)/bin/${PN}.sha224sum \
+        /usr/$(exhost --target)/bin/sha256sum   /usr/$(exhost --target)/bin/${PN}.sha256sum \
+        /usr/$(exhost --target)/bin/sha384sum   /usr/$(exhost --target)/bin/${PN}.sha384sum \
+        /usr/$(exhost --target)/bin/sha512sum   /usr/$(exhost --target)/bin/${PN}.sha512sum \
+        /usr/$(exhost --target)/bin/users       /usr/$(exhost --target)/bin/${PN}.users     \
+        $(for prog in ${coreutils[@]};do echo /usr/$(exhost --target)/bin/${prog} /usr/$(exhost --target)/bin/toybox;done)
+    alternatives_for grep       ${PN} 100   \
+        /usr/$(exhost --target)/bin/egrep       /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/fgrep       /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/grep        /usr/$(exhost --target)/bin/toybox
+    alternatives_for hostname   ${PN} 100   \
+        /usr/$(exhost --target)/bin/hostname    /usr/$(exhost --target)/bin/toybox
+    alternatives_for kmod-tools ${PN} 100   \
+        /usr/$(exhost --target)/bin/insmod      /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/lsmod       /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/modinfo     /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/modprobe    /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/rmmod       /usr/$(exhost --target)/bin/toybox
+    alternatives_for syslogd    ${PN} 100   \
+        /usr/$(exhost --target)/bin/klogd       /usr/$(exhost --target)/bin/toybox  \
+        /usr/$(exhost --target)/bin/syslogd     /usr/$(exhost --target)/bin/toybox
+    alternatives_for sed        ${PN} 100   \
+        /usr/$(exhost --target)/bin/sed         /usr/$(exhost --target)/bin/toybox
+    alternatives_for uptime     ${PN} 100   \
+        /usr/$(exhost --target)/bin/uptime      /usr/$(exhost --target)/bin/toybox
+
+    emagicdocs
+}

@@ -1,0 +1,29 @@
+From 87f6a93fc594934b21fcd0e9d42baad2abb209ae Mon Sep 17 00:00:00 2001
+From: Rob Landley <rob@landley.net>
+Date: Tue, 27 Oct 2015 23:12:48 -0500
+Subject: [PATCH] Fix ls error message for chmod -r directories.
+
+Also, if you mkdir "$(echo -e "one\ntwo"); chmod -r one*; ls -q one*
+it honors -q.
+---
+ toys/posix/ls.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/toys/posix/ls.c b/toys/posix/ls.c
+index c815ab6..968b253 100644
+--- a/toys/posix/ls.c
++++ b/toys/posix/ls.c
+@@ -297,6 +297,13 @@ static void listfiles(int dirfd, struct dirtree *indir)
+     *colsizes = (unsigned *)(toybuf+260), columns = (sizeof(toybuf)-260)/4;
+   char tmp[64];
+ 
++  if (-1 == dirfd) {
++    strwidth(indir->name);
++    perror_msg("%s", indir->name);
++
++    return;
++  }
++
+   memset(totals, 0, sizeof(totals));
+ 
+   // Top level directory was already populated by main()
