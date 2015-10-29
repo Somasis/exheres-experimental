@@ -47,16 +47,6 @@ DEFAULT_SRC_PREPARE_PATCHES=(
     "${FILES}"/87f6a93fc594934b21fcd0e9d42baad2abb209ae.patch
 )
 
-# TODO/NOTE(somasis):
-#
-# coreutils
-# not yet provided: csplit, fmt, hostid (coming in next ver), join, numfmt,
-#                   pathchk, pinky, pr, ptx, shuf, stdbuf, stty, sum, tsort,
-#                   unexpand
-#
-# the rest... the rest are probably not used very much. shuf is the only one
-# that I can think of using often; I've never even heard of ones like tsort.
-
 src_prepare() {
     default
     edo cp -v "${FILES}"/config "${WORK}"/.config
@@ -107,14 +97,11 @@ EOF
 #!/bin/sh
 exec who | cut -d$'\t' -f1
 EOF
-    herebin "${PN}".uncompress << 'EOF'
-#!/bin/sh
-exec decompress "$@"
-EOF
 
     option static && dobin "${PN}".static
+    option static && edo chmod u+s "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}".static
     dobin "${PN}"
-    edo chmod 2755 "${IMAGE}"/usr/$(exhost --target)/bin/${PN}
+    edo chmod u+s "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}"
 
     local coreutils=(
         base64 basename cat chgrp chmod chown chroot cksum comm cp cut date
@@ -128,7 +115,6 @@ EOF
 
     alternatives_for coreutils  ${PN} 100   \
         /usr/$(exhost --target)/bin/'['         /usr/$(exhost --target)/bin/${PN}.'['       \
-        /usr/$(exhost --target)/bin/arch        /usr/$(exhost --target)/bin/${PN}.arch      \
         /usr/$(exhost --target)/bin/sha224sum   /usr/$(exhost --target)/bin/${PN}.sha224sum \
         /usr/$(exhost --target)/bin/sha256sum   /usr/$(exhost --target)/bin/${PN}.sha256sum \
         /usr/$(exhost --target)/bin/sha384sum   /usr/$(exhost --target)/bin/${PN}.sha384sum \

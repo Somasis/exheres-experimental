@@ -248,7 +248,7 @@ CONFIG_NPROC=y
 # CONFIG_TASKSET is not set
 CONFIG_TIMEOUT=y
 CONFIG_TRUNCATE=y
-# CONFIG_UPTIME is not set
+CONFIG_UPTIME=y
 # CONFIG_USLEEP is not set
 # CONFIG_VCONFIG is not set
 # CONFIG_VMSTAT is not set
@@ -261,7 +261,7 @@ CONFIG_YES=y
 # Linux Standard Base commands
 #
 # CONFIG_DMESG is not set
-# CONFIG_HOSTNAME is not set
+CONFIG_HOSTNAME=y
 # CONFIG_KILLALL is not set
 CONFIG_MD5SUM=y
 CONFIG_SHA1SUM=y
