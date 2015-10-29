@@ -12,15 +12,13 @@ MYOPTIONS=""
 
 PLATFORMS="~amd64 ~armv7"
 
-DEPENDENCIES="
-    run:
-        sys-apps/busybox
-"
+DEPENDENCIES=""
 
 BUGS_TO="somasis@exherbo.org"
 
 DEFAULT_SRC_INSTALL_PARAMS=(
     PREFIX=/usr/$(exhost --target)
+    LIBEXECDIR=/usr/$(exhost --target)/libexec
     DOCDIR=/usr/share/doc/${PNVR}
     SYSCONFDIR=/etc
 )
