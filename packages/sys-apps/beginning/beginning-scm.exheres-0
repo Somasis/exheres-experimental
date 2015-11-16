@@ -34,3 +34,11 @@ src_install() {
 
 }
 
+pkg_postinst() {
+    if ! has_version ${CATEGORY}/${PN};then
+        einfo   "Before rebooting or otherwise using Beginning, you need to set some" \
+                "providers, for a few core daemons."
+        einfo   "Run \`rc providers <virtual>\` to see a virtual's providers that you have installed."
+     fi
+}
+
