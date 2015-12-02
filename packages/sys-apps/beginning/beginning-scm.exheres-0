@@ -16,11 +16,15 @@ DEPENDENCIES=""
 
 BUGS_TO="somasis@exherbo.org"
 
-DEFAULT_SRC_INSTALL_PARAMS=(
-    PREFIX=/usr/$(exhost --target)
-    LIBEXECDIR=/usr/$(exhost --target)/libexec
-    DOCDIR=/usr/share/doc/${PNVR}
-    SYSCONFDIR=/etc
+DEFAULT_SRC_COMPILE_PARAMS=(
+    prefix=/usr
+    exec_prefix=/usr/$(exhost --target)
+    docdir=/usr/share/doc/${PNVR}
+    sysconfdir=/etc
+    localstatedir=/var
+    runstatedir=/run
+
+    copyright="(c) 2007-2015 Exherbo developers"
 )
 
 src_install() {
