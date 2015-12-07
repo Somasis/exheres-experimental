@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # ToyBox version: KCONFIG_VERSION
-# Mon Dec  7 01:36:58 2015
+# Fri Dec 11 20:21:40 2015
 #
 CONFIG_TOYBOX_CONTAINER=y
 CONFIG_TOYBOX_FIFREEZE=y
@@ -310,7 +310,7 @@ CONFIG_UMOUNT=y
 # Toybox global settings
 #
 CONFIG_TOYBOX=y
-CONFIG_TOYBOX_SUID=y
+# CONFIG_TOYBOX_SUID is not set
 CONFIG_TOYBOX_LSM_NONE=y
 # CONFIG_TOYBOX_SELINUX is not set
 # CONFIG_TOYBOX_SMACK is not set

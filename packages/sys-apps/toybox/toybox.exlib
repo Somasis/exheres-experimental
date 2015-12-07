@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 require github [ user='landley' tag="${PV}" ]
-require alternatives
+require alternatives toolchain-funcs
 
 SUMMARY="A simple, BSD-licensed project which aims to provide all the
 tools needed to turn an embedded system into a development environment."
@@ -18,26 +18,38 @@ DOWNLOADS="${HOMEPAGE}/downloads/${PNV}.tar.gz"
 # NOTE(somasis)
 #   asked Rob Landley in IRC, he says that it is essentially public domain,
 #   but the license is derived from BSD. was told to use either.
-LICENCES="|| ( BSD-2 public-domain )"
+LICENCES="public-domain"
 
-MYOPTIONS="
-    static
-"
+MYOPTIONS="static"
 
 DEPENDENCIES=""
-
-# seems to act really strange with sydbox
-RESTRICT=test
 
 MAKE_PARAMS=(
     CPUS=${EXJOBS}
     V=2
     HOSTCC=$(exhost --tool-prefix)cc
+    NOSTRIP=true
 )
+
+pkg_setup() {
+    default
+    if option static;then
+        append-flags -static
+        append-ldflags -static
+    fi
+}
 
 src_prepare() {
     default
     edo cp -v "${FILES}"/config "${WORK}"/.config
+
+    # NOTE(somasis) tests which fail due to sandboxing
+    for util in lsattr modinfo mount renice ;do
+        edo rm tests/${util}.test
+    done
+    edo sed \
+            -e '/Hostname - Set/d'  \
+            -i tests/hostname.test
 }
 
 src_configure() {
@@ -46,18 +58,16 @@ src_configure() {
 
 src_compile() {
     emake "${MAKE_PARAMS[@]}"
-    if option static;then
-        mv "${PN}" "${PN}".dyn
-        CFLAGS="${CFLAGS} -static" emake "${MAKE_PARAMS[@]}"
-        mv "${PN}" "${PN}".static
-        mv "${PN}".dyn "${PN}"
-    fi
 }
 
 src_test() {
-    esandbox allow_path /proc/self/exe
-    emake "${MAKE_PARAMS[@]}" test
-    esandbox disallow_path /proc/self/exe
+    if exhost --is-native -q;then
+        esandbox allow_path /proc/self/exe
+        emake "${MAKE_PARAMS[@]}" test
+        esandbox disallow_path /proc/self/exe
+    else
+        echo "cross compiling, skipping tests"
+    fi
 }
 
 src_install() {
@@ -66,17 +76,14 @@ src_install() {
 exec test "$@"
 EOF
 
-    option static && dobin "${PN}".static
-    option static && edo chmod 2755 "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}".static
     dobin "${PN}"
-    edo chmod 2755 "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}"
 
     local coreutils=(
         base64 basename cat chgrp chmod chown chroot cksum comm cp cut date
         dd df dirname du echo env expand expr factor false fold head hostid
         id install kill link ln logname ls md5sum mkdir mkfifo mknod mktemp
         mv nice nl nohup nproc od paste printenv printf pwd readlink realpath
-        rm rmdir sed seq sha1sum shred sleep sort split stat sync tac tail
+        rm rmdir seq sha1sum shred sleep sort split stat sync tac tail
         tee test time timeout touch tr true truncate tty uname uniq unlink
         wc who whoami yes
     )
@@ -84,10 +91,10 @@ EOF
     alternatives_for coreutils  ${PN} 100   \
         /usr/$(exhost --target)/bin/'['         /usr/$(exhost --target)/bin/${PN}.'['       \
         $(for prog in ${coreutils[@]};do echo /usr/$(exhost --target)/bin/${prog} /usr/$(exhost --target)/bin/toybox;done)
-    alternatives_for grep       ${PN} 100   \
-        /usr/$(exhost --target)/bin/egrep       /usr/$(exhost --target)/bin/toybox  \
-        /usr/$(exhost --target)/bin/fgrep       /usr/$(exhost --target)/bin/toybox  \
-        /usr/$(exhost --target)/bin/grep        /usr/$(exhost --target)/bin/toybox
+    #alternatives_for grep       ${PN} 100   \
+    #    /usr/$(exhost --target)/bin/egrep       /usr/$(exhost --target)/bin/toybox  \
+    #    /usr/$(exhost --target)/bin/fgrep       /usr/$(exhost --target)/bin/toybox  \
+    #    /usr/$(exhost --target)/bin/grep        /usr/$(exhost --target)/bin/toybox
     alternatives_for hostname   ${PN} 100   \
         /usr/$(exhost --target)/bin/hostname    /usr/$(exhost --target)/bin/toybox
     alternatives_for kmod-tools ${PN} 100   \
@@ -96,9 +103,6 @@ EOF
         /usr/$(exhost --target)/bin/modinfo     /usr/$(exhost --target)/bin/toybox  \
         /usr/$(exhost --target)/bin/modprobe    /usr/$(exhost --target)/bin/toybox  \
         /usr/$(exhost --target)/bin/rmmod       /usr/$(exhost --target)/bin/toybox
-    alternatives_for syslogd    ${PN} 100   \
-        /usr/$(exhost --target)/bin/klogd       /usr/$(exhost --target)/bin/toybox  \
-        /usr/$(exhost --target)/bin/syslogd     /usr/$(exhost --target)/bin/toybox
     alternatives_for sed        ${PN} 100   \
         /usr/$(exhost --target)/bin/sed         /usr/$(exhost --target)/bin/toybox
     alternatives_for uptime     ${PN} 100   \
