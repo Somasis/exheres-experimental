@@ -12,6 +12,9 @@ executable. It can be used as an alternative to Busybox or GNU coreutils."
 
 SLOT="0"
 
+HOMEPAGE="http://landley.net/${PN}"
+DOWNLOADS="${HOMEPAGE}/downloads/${PNV}.tar.gz"
+
 # NOTE(somasis)
 #   asked Rob Landley in IRC, he says that it is essentially public domain,
 #   but the license is derived from BSD. was told to use either.
@@ -21,30 +24,15 @@ MYOPTIONS="
     static
 "
 
-DEPENDENCIES="
-    run:
-        dev-lang/perl:* [[ description = [ Needed for sha*sum programs ] ]]
-"
+DEPENDENCIES=""
 
 # seems to act really strange with sydbox
 RESTRICT=test
 
 MAKE_PARAMS=(
     CPUS=${EXJOBS}
-    HOSTCC=$(exhost --tool-prefix)cc
-    AR=$(exhost --tool-prefix)ar
-    AS=$(exhost --tool-prefix)ar
-    CC=$(exhost --tool-prefix)cc
-    CXX=$(exhost --tool-prefix)c++
-    LD=$(exhost --tool-prefix)ld
-    NM=$(exhost --tool-prefix)nm
-    RANLIB=$(exhost --tool-prefix)ranlib
     V=2
-)
-
-DEFAULT_SRC_PREPARE_PATCHES=(
-    "${FILES}"/10a942f7a67fe7f8dc6c17c3115449f5034fb607.patch
-    "${FILES}"/87f6a93fc594934b21fcd0e9d42baad2abb209ae.patch
+    HOSTCC=$(exhost --tool-prefix)cc
 )
 
 src_prepare() {
@@ -77,31 +65,11 @@ src_install() {
 #!/bin/sh
 exec test "$@"
 EOF
-    herebin "${PN}".sha224sum <<'EOF'
-#!/bin/sh
-exec shasum -a 224 "$@"
-EOF
-    herebin "${PN}".sha256sum <<'EOF'
-#!/bin/sh
-exec shasum -a 256 "$@"
-EOF
-    herebin "${PN}".sha384sum <<'EOF'
-#!/bin/sh
-exec shasum -a 384 "$@"
-EOF
-    herebin "${PN}".sha512sum <<'EOF'
-#!/bin/sh
-exec shasum -a 512 "$@"
-EOF
-    herebin "${PN}".users <<'EOF'
-#!/bin/sh
-exec who | cut -d$'\t' -f1
-EOF
 
     option static && dobin "${PN}".static
-    option static && edo chmod u+s "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}".static
+    option static && edo chmod 2755 "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}".static
     dobin "${PN}"
-    edo chmod u+s "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}"
+    edo chmod 2755 "${IMAGE}"/usr/$(exhost --target)/bin/"${PN}"
 
     local coreutils=(
         base64 basename cat chgrp chmod chown chroot cksum comm cp cut date
@@ -115,11 +83,6 @@ EOF
 
     alternatives_for coreutils  ${PN} 100   \
         /usr/$(exhost --target)/bin/'['         /usr/$(exhost --target)/bin/${PN}.'['       \
-        /usr/$(exhost --target)/bin/sha224sum   /usr/$(exhost --target)/bin/${PN}.sha224sum \
-        /usr/$(exhost --target)/bin/sha256sum   /usr/$(exhost --target)/bin/${PN}.sha256sum \
-        /usr/$(exhost --target)/bin/sha384sum   /usr/$(exhost --target)/bin/${PN}.sha384sum \
-        /usr/$(exhost --target)/bin/sha512sum   /usr/$(exhost --target)/bin/${PN}.sha512sum \
-        /usr/$(exhost --target)/bin/users       /usr/$(exhost --target)/bin/${PN}.users     \
         $(for prog in ${coreutils[@]};do echo /usr/$(exhost --target)/bin/${prog} /usr/$(exhost --target)/bin/toybox;done)
     alternatives_for grep       ${PN} 100   \
         /usr/$(exhost --target)/bin/egrep       /usr/$(exhost --target)/bin/toybox  \

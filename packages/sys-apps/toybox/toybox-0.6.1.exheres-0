@@ -1,0 +1,13 @@
+# Copyright 2015 Kylie McClain <somasis@exherbo.org>
+# Distributed under the terms of the GNU General Public License v2
+
+require toybox
+
+PLATFORMS="~amd64 ~armv7"
+
+DEFAULT_SRC_PREPARE_PATCHES=(
+    "${FILES}"/769341fdd7497683136d1a9ae08f6009dbad6c8c.patch
+    "${FILES}"/d885b528f2d26435ecff83da9e50e815ac73605b.patch
+    "${FILES}"/4e39281c1f380c53ee6ef8b9795111e0695a55be.patch
+)
+

@@ -1,0 +1,36 @@
+From 769341fdd7497683136d1a9ae08f6009dbad6c8c Mon Sep 17 00:00:00 2001
+From: Rob Landley <rob@landley.net>
+Date: Thu, 5 Nov 2015 00:13:27 -0600
+Subject: [PATCH] Fix sed bug where any ] right after [ was skipped, not just
+ first one in range.
+
+---
+ tests/sed.test   | 1 +
+ toys/posix/sed.c | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tests/sed.test b/tests/sed.test
+index 56d68fd..805184e 100755
+--- a/tests/sed.test
++++ b/tests/sed.test
+@@ -129,6 +129,7 @@ testing "" "sed '1a\
+ hello'" "merp\nhello\n" "" "merp"
+ 
+ testing "" "sed -e '/x/c\' -e 'y'" 'y\n' '' 'x\n'
++testing "" "sed -e 's/a[([]*b/X/'" 'X' '' 'a[(b'
+ 
+ #echo meep | sed/sed -e '1a\' -e 'huh'
+ #echo blah | sed/sed -f <(echo -e "1a\\\\\nboom")
+diff --git a/toys/posix/sed.c b/toys/posix/sed.c
+index 9d377cd..a57891e 100644
+--- a/toys/posix/sed.c
++++ b/toys/posix/sed.c
+@@ -718,7 +718,7 @@ static char *unescape_delimited_string(char **pstr, char *delim, int regex)
+     if (!*from) return 0;
+ 
+     // delimiter in regex character range doesn't count
+-    if (*from == '[') {
++    if (!mode && *from == '[') {
+       mode = '[';
+       if (from[1] == ']') *(to++) = *(from++);
+     } else if (mode && *from == ']') mode = 0;
