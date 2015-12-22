@@ -1,0 +1,32 @@
+# Copyright 2015 Kylie McClain <somasis@exherbo.org>
+# Distributed under the terms of the GNU General Public License v2
+
+require alternatives
+require github [ user='somasis' tag="v${PV}" ]
+
+SUMMARY="Daemon scripts for the Beginning init system"
+SLOT="0"
+LICENCES="ISC"
+
+MYOPTIONS=""
+
+PLATFORMS="~amd64 ~armv7"
+
+DEPENDENCIES="
+    run:
+        sys-apps/beginning[~${PV}]
+"
+
+BUGS_TO="somasis@exherbo.org"
+
+DEFAULT_SRC_COMPILE_PARAMS=(
+    prefix=/usr
+    exec_prefix=/usr/$(exhost --target)
+    docdir=/usr/share/doc/${PNVR}
+    sysconfdir=/etc
+    localstatedir=/var
+    runstatedir=/run
+
+    copyright="(c) 2007-2015 Exherbo developers"
+)
+
