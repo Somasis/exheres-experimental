@@ -13,7 +13,7 @@ executable. It can be used as an alternative to Busybox or GNU coreutils."
 SLOT="0"
 
 HOMEPAGE="http://landley.net/${PN}"
-DOWNLOADS="${HOMEPAGE}/downloads/${PNV}.tar.gz"
+ever is_scm || DOWNLOADS="${HOMEPAGE}/downloads/${PNV}.tar.gz"
 
 # NOTE(somasis)
 #   asked Rob Landley in IRC, he says that it is essentially public domain,
