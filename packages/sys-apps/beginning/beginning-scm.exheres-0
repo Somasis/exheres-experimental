@@ -43,7 +43,7 @@ src_install() {
 
 pkg_postinst() {
     if has_version ${CATEGORY}/${PN};then
-        ewarn "Before rebooting, set GETTY_PROVIDER in rc.conf or you will be unable"   \
+        ewarn "Before rebooting, set TTY_PROVIDER in rc.conf or you will be unable"   \
               "to log in from consoles."
     fi
 }
