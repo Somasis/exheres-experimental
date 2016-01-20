@@ -43,9 +43,8 @@ src_install() {
 
 pkg_postinst() {
     if has_version ${CATEGORY}/${PN};then
-        ewarn   "Note that getty is no longer a core daemon; if you"    \
-                "reboot without adding it to rc.conf's DAEMONS, you"    \
-                "will be unable to log in locally."
+        ewarn "Before rebooting, set GETTY_PROVIDER in rc.conf or you will be unable"   \
+              "to log in from consoles."
     fi
 }
 
