@@ -22,11 +22,12 @@ BUGS_TO="somasis@exherbo.org"
 DEFAULT_SRC_COMPILE_PARAMS=(
     prefix=/usr
     exec_prefix=/usr/$(exhost --target)
+    sbindir=/usr/$(exhost --target)/bin
     docdir=/usr/share/doc/${PNVR}
     sysconfdir=/etc
     localstatedir=/var
     runstatedir=/run
 
-    copyright="(c) 2007-2015 Exherbo developers"
+    copyright="(c) 2007-2016 Exherbo developers"
 )
 
