@@ -22,6 +22,7 @@ src_compile() {
     emake   \
         prefix=/usr                                             \
         exec_prefix=/usr/$(exhost --target)                     \
+        sbindir=/usr/$(exhost --target)/bin                     \
         docdir=/usr/share/doc/${PNVR}                           \
         sysconfdir=/etc                                         \
         localstatedir=/var                                      \
