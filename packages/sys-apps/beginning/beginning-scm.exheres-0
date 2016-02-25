@@ -42,11 +42,7 @@ src_install() {
                         /usr/$(exhost --target)/bin/shutdown    beginning.shutdown  \
                         /usr/$(exhost --target)/bin/halt        beginning.halt
 
-}
-
-pkg_postinst() {
-    alternatives_pkg_postinst
-    if has_version ${CATEGORY}/${PN};then
+    if ! has_version ${CATEGORY}/${PN};then
         ewarn "Before rebooting, set TTY_PROVIDER in rc.conf or you will be unable"   \
               "to log in from consoles."
     fi
