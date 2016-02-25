@@ -12,6 +12,8 @@ LICENCES="ISC"
 PLATFORMS="~amd64 ~armv7"
 
 DEPENDENCIES="
+    build:
+        bash-completion? ( virtual/pkg-config )
     recommendation:
         sys-apps/beginning-scripts[~${PV}]
 "
@@ -43,6 +45,7 @@ src_install() {
 }
 
 pkg_postinst() {
+    alternatives_pkg_postinst
     if has_version ${CATEGORY}/${PN};then
         ewarn "Before rebooting, set TTY_PROVIDER in rc.conf or you will be unable"   \
               "to log in from consoles."
