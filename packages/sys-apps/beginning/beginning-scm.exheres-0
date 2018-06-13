@@ -1,4 +1,4 @@
-# Copyright 2015 Kylie McClain <somasis@exherbo.org>
+# Copyright 2015-2018 Kylie McClain <somasis@exherbo.org>
 # Distributed under the terms of the GNU General Public License v2
 
 require bash-completion
@@ -30,7 +30,7 @@ src_compile() {
         localstatedir=/var                                      \
         runstatedir=/run                                        \
         bash_completion=$(option bash-completion true false)    \
-        COPYRIGHT="(c) 2007-2016 Exherbo developers"
+        COPYRIGHT="(c) 2007-2018 Exherbo developers"
 }
 
 src_install() {
