@@ -1,4 +1,4 @@
-# Copyright 2015 Kylie McClain <somasis@exherbo.org>
+# Copyright 2015-2018 Kylie McClain <somasis@exherbo.org>
 # Distributed under the terms of the GNU General Public License v2
 
 require alternatives
@@ -28,6 +28,6 @@ DEFAULT_SRC_COMPILE_PARAMS=(
     localstatedir=/var
     runstatedir=/run
 
-    copyright="(c) 2007-2016 Exherbo developers"
+    copyright="(c) 2007-2018 Exherbo developers"
 )
 
